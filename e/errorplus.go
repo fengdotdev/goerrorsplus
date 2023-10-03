@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-type ErrorPlus struct {
+// transitive version of error plus
+type TErrorPlus struct {
 	Err     error  `json:"err"`
 	Message string `json:"message"`
 	Tags    []string `json:"tags"`
@@ -16,57 +17,82 @@ type ErrorPlus struct {
 	Args    []interface{} `json:"args"`
 	Trace   string `json:"trace"`
 	Time    time.Time `json:"time"`
+	RuntimeGoVer string `json:"runtimeGoVer"`
 }
+
+
+type ErrorPlus struct {
+	runtimeGoVer string
+	err     error  
+	message string 
+	tags    []string 
+	fN      string 
+	args    []interface{} 
+	trace   string 
+	time    time.Time 
+}
+
+
 
 // TESTME
 func NewErrorPlus(err error, message string, tags []string, fn interface{}, args ...interface{}) *ErrorPlus {
+
+	_,caller,line,_:= runtime.Caller(2)
+
 	ep := &ErrorPlus{
-		Err:     err,
-		Tags:    tags,
-		Message: message,
-		FN:      runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
-		Args:    args,
-		Trace:   runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
-		Time:    time.Now(),
+		runtimeGoVer: runtime.Version(),
+		err:     err,
+		tags:    tags,
+		message: message,
+		fN:      runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
+		args:    args,
+		trace:   fmt.Sprintf("caller: %s line: %d",	caller, line ),
+		time:    time.Now(),
 	}
 	return ep
 }
 
-// TESTME
-func (ep *ErrorPlus) Error() string {
-	err := ep.Err.Error()
-	return err
-}
+
+
+
 // TESTME
 // short hand for VerboseError
 func (ep *ErrorPlus) V() error {
 	return ep.VerboseError()
 }
 // TESTME
+// get a verbose error with timestamp, original error, message, trace, and args
 func (ep *ErrorPlus) VerboseError() error {
 
-	timestamp := ep.Time.Format("2006-01-02 15:04:05")
-	err := ep.Err.Error()
-	message := ep.Message
-	trace := ep.Trace
-	fn := ep.FN
-	args := ep.Args
+	timestamp := ep.time.Format("2006-01-02 15:04:05")
+	version:= ep.runtimeGoVer
+	err := ep.err.Error()
+	message := ep.message
+	trace := ep.trace
+	fn := ep.fN
+	args := ep.args
 
 	//format 2006-01-02 15:04:05 error: original-error trace: /something/something/fn.errorFunc args: [1 2 3]
-	return fmt.Errorf("%s error: %s  %s fn: %s trace: %s  %s", timestamp, err, message, fn, trace, args)
+	return fmt.Errorf("%s %s error: %s msg: %s fn: %s trace: %s  args: %s", timestamp,version,  err, message, fn, trace, args)
 }
+
+
+// data output methods
+
 // TESTME
 func (ep *ErrorPlus) Map() map[string]interface{} {
 	return map[string]interface{}{
-		"error":     ep.Err,
-		"message": ep.Message,
+		"error":     ep.err,
+		"message": ep.message,
 		"tags":    ep.Tags,
-		"fn":      ep.FN,
-		"args":    ep.Args,
-		"trace":   ep.Trace,
-		"time":    ep.Time,
+		"fn":      ep.fN,
+		"args":    ep.args,
+		"trace":   ep.trace,
+		"time":    ep.time,
+		"runtimeGoVer": ep.runtimeGoVer,
 	}		
 }
+
 
 // TESTME
 func (ep *ErrorPlus) String() string {
@@ -84,4 +110,70 @@ func (ep *ErrorPlus) JSONDATA() []byte {
 		return []byte{}
 	}
 	return b
+}
+
+
+
+//getter methods
+
+// return a transitive version of error plus with no methods and json annotations
+func (ep *ErrorPlus) ErrorPlus() *TErrorPlus{
+	return &TErrorPlus{
+		Err:     ep.err,
+		Message: ep.message,
+		Tags:    ep.tags,
+		FN:      ep.fN,
+		Args:    ep.args,
+		Trace:   ep.trace,
+		Time:    ep.time,
+		RuntimeGoVer: ep.runtimeGoVer,
+	}
+}
+
+
+// TESTME
+
+// get the original error without the error plus properties
+func (ep *ErrorPlus) Error() string {
+	err := ep.err.Error()
+	return err
+}
+
+// TESTME
+// get the message associated with the error plus object  
+func (ep *ErrorPlus) Message() string{
+	return ep.message
+}
+
+// TESTME
+// get the tags associated with the error plus object
+func (ep *ErrorPlus) Tags() []string{
+	return ep.tags
+}
+
+// TESTME
+func (ep *ErrorPlus) FN() string{
+	return ep.fN
+}
+
+
+// TESTME
+func (ep *ErrorPlus) Args() []interface{}{
+	return ep.args
+}
+
+// TESTME
+func (ep *ErrorPlus) Trace() string{
+	return ep.trace
+}
+
+// TESTME
+func (ep *ErrorPlus) Time() time.Time{
+	return ep.time
+}
+
+
+// TESTME
+func (ep *ErrorPlus) RuntimeGoVer() string{
+return ep.runtimeGoVer
 }
