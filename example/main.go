@@ -1,37 +1,41 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"log"
 
 	"github.com/fengdotdev/goerrorsplus/e"
 )
 
-func failDiv(n1, n2 int ) (float64,error) {
-		defer recover()
-	panic("panic test")
+
+
+
+func division(n1, n2 int ) (val float64, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+		val = 0
+		 er:= fmt.Errorf("recover: %s", r)
+		 err = e.E(er,"div failed",[]string{"math-err"},division,n1,n2)
+		}}()
+
 	if n2 == 0 {
-		return 0, errors.New("div by zero")
+		panic("div by zero")
 	}
-	
 	return float64(n1)/float64(n2), nil
 }
 
 
-
-
 func main() {
 
-	result, err := failDiv(1,0)
+	result, err := division(1,0)
 	if err != nil {
-		recover()
-		errp := e.E(err,"div failed",[]string{"div"},failDiv,1,0)
-		fmt.Println(errp)
-		fmt.Println(err)
-	
-
-		fmt.Println(errp.V())
+		errp := e.E(err,"div failed",[]string{"math-err"},division,1,0)	
+		log.Println(errp.V())
+		fmt.Println("something went wrong at the division")
 	}
 
-	fmt.Println(result)
+	if err == nil {
+		fmt.Println("result is ",result)
+	}
 }

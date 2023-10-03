@@ -84,7 +84,7 @@ func (ep *ErrorPlus) Map() map[string]interface{} {
 	return map[string]interface{}{
 		"error":     ep.err,
 		"message": ep.message,
-		"tags":    ep.Tags,
+		"tags":    ep.tags,
 		"fn":      ep.fN,
 		"args":    ep.args,
 		"trace":   ep.trace,
@@ -133,47 +133,52 @@ func (ep *ErrorPlus) ErrorPlus() *TErrorPlus{
 
 // TESTME
 
-// get the original error without the error plus properties
+// get the original error without the error plus properties complain with the error interface
 func (ep *ErrorPlus) Error() string {
 	err := ep.err.Error()
 	return err
 }
 
 // TESTME
+func (ep *ErrorPlus) GetError() error{
+	return ep.err
+}
+
+// TESTME
 // get the message associated with the error plus object  
-func (ep *ErrorPlus) Message() string{
+func (ep *ErrorPlus) GetMessage() string{
 	return ep.message
 }
 
 // TESTME
 // get the tags associated with the error plus object
-func (ep *ErrorPlus) Tags() []string{
+func (ep *ErrorPlus) GetTags() []string{
 	return ep.tags
 }
 
 // TESTME
-func (ep *ErrorPlus) FN() string{
+func (ep *ErrorPlus) GetFN() string{
 	return ep.fN
 }
 
 
 // TESTME
-func (ep *ErrorPlus) Args() []interface{}{
+func (ep *ErrorPlus) GetArgs() []interface{}{
 	return ep.args
 }
 
 // TESTME
-func (ep *ErrorPlus) Trace() string{
+func (ep *ErrorPlus) GetTrace() string{
 	return ep.trace
 }
 
 // TESTME
-func (ep *ErrorPlus) Time() time.Time{
+func (ep *ErrorPlus) GetTime() time.Time{
 	return ep.time
 }
 
 
 // TESTME
-func (ep *ErrorPlus) RuntimeGoVer() string{
+func (ep *ErrorPlus) GetRuntimeGoVer() string{
 return ep.runtimeGoVer
 }
