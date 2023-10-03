@@ -32,7 +32,6 @@ func main() {
 	if err != nil {
 		errp := e.E(err,"div failed",[]string{"math-err"},division,1,0)	
 		log.Println(errp.V())
-		fmt.Println("something went wrong at the division")
 	}
 
 	if err == nil {
