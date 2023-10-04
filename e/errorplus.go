@@ -2,6 +2,7 @@ package e
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -46,7 +47,7 @@ func NewErrorPlus(err error, message string, tags []string, fn interface{}, args
 		message: message,
 		fN:      runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
 		args:    args,
-		trace:   fmt.Sprintf("caller: %s line: %d",	caller, line ),
+		trace:   fmt.Sprintf("[caller: %s line: %d]",	caller, line ),
 		time:    time.Now(),
 	}
 	return ep
@@ -61,19 +62,24 @@ func (ep *ErrorPlus) V() error {
 	return ep.VerboseError()
 }
 // TESTME
-// get a verbose error with timestamp, original error, message, trace, and args
+// get a verbose error with version, timestamp, message, error, tags, function name, trace, and args
 func (ep *ErrorPlus) VerboseError() error {
 
 	timestamp := ep.time.Format("2006-01-02 15:04:05")
 	version:= ep.runtimeGoVer
 	err := ep.err.Error()
 	message := ep.message
+	tags := ep.tags
 	trace := ep.trace
 	fn := ep.fN
 	args := ep.args
+	
 
-	//format 2006-01-02 15:04:05 error: original-error trace: /something/something/fn.errorFunc args: [1 2 3]
-	return fmt.Errorf("%s %s error: %s msg: %s fn: %s trace: %s  args: %s", timestamp,version,  err, message, fn, trace, args)
+	s:= fmt.Sprintf("go ver.: %s | at: %s | msg: %s | error: %s | tags: %s | fn: %s | trace: %s | args: %s",version, timestamp  ,err, message,tags, fn, trace, args)
+
+// example: go ver.: go1.21.1 | at: 2023-10-03 16:13:19 | msg: recover: div by zero | error: div failed | tags: [math-err] | fn: main.division | trace: [caller: G:/fengdotdev/github/goerrorsplus/example/main.go line: 31] | args: [%!s(int=1) %!s(int=0)]
+	return errors.New(s)
+
 }
 
 

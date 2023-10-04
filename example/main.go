@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/fengdotdev/goerrorsplus/e"
 )
@@ -15,8 +14,7 @@ func division(n1, n2 int ) (val float64, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 		val = 0
-		 er:= fmt.Errorf("recover: %s", r)
-		 err = e.E(er,"div failed",[]string{"math-err"},division,n1,n2)
+		 err= fmt.Errorf("recover: %s", r)
 		}}()
 
 	if n2 == 0 {
@@ -31,7 +29,7 @@ func main() {
 	result, err := division(1,0)
 	if err != nil {
 		errp := e.E(err,"div failed",[]string{"math-err"},division,1,0)	
-		log.Println(errp.V())
+		fmt.Println(errp.V())
 	}
 
 	if err == nil {
